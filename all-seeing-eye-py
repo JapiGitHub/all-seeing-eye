@@ -1,0 +1,91 @@
+import os
+import re
+
+# ANSI escape codes for colors and bold
+RED = '\033[91m'
+YELLOW = '\033[93m'
+BOLD = '\033[1m'
+RESET = '\033[0m'
+
+# Define the directory to start the search from
+start_directory = './LOOT'
+
+print("🏝️ searching in -/LOOT/* ")
+print("")
+print(f"{BOLD}{RED} 🏴‍☠️ LOOT by content: {RESET} VERY HIGH PROBABILITY OF LOOT 💰 ")
+print(f"{BOLD}{RED} 🏴‍☠️ LOOT by filename {RESET} PRIVETE KEYS!!                💰 ")
+print(f" 🦜 Lots of false positives probably, but look through ")
+print("")
+
+
+avoid_false_positives="y"
+avoid_false_positives = input("Do you want to search only for most obvious LOOT ? Y/n ")
+
+# Patterns to search within files
+content_patterns = [
+    r'\$2[a-z]?\$',
+    r'\$y\$',
+    r'KEY-----'
+]
+
+# Not priority patterns to search within files
+shotgun_content_patterns = [
+    r'password',
+    r'db_pass',
+    r'eyJ'
+]
+
+# Filename patterns to search for
+filename_patterns = [
+    r'^id_rsa$',
+    r'^id_ed25519$'
+]
+
+# Compile the regex patterns for content and filenames
+content_regex = re.compile('|'.join(content_patterns), re.IGNORECASE)
+filename_regex = re.compile('|'.join(filename_patterns), re.IGNORECASE)
+shotgun_content_regex = re.compile('|'.join(shotgun_content_patterns), re.IGNORECASE)
+
+# Function to search for patterns within files
+def search_file(file_path):
+    try:
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
+            content = file.read()
+            for match in content_regex.finditer(content):
+                start = max(match.start() - 90, 0)
+                end = match.end() + 90
+                print("_________________________________________________________________________")
+                print(f"{BOLD}{RED}🏴‍☠️ LOOT by content:{RESET} \n {content[start:end]} \n    => {file_path}")
+    except Exception as e:
+        print(f"Could not read {file_path}: {str(e)}")
+
+# Function to walk through the directory tree and check files
+def search_directory(directory):
+    for dirpath, dirnames, filenames in os.walk(directory):
+        # Check each file
+        for filename in filenames:
+            filepath = os.path.join(dirpath, filename)
+            # Check if filename matches any pattern
+            if filename_regex.search(filename):
+                print("_________________________________________________________________________")
+                print(f"{BOLD}{RED} 🏴‍☠️ LOOT by filename {RESET} PRIVETE KEYS!!       => {filepath}")
+            # Search inside file
+            search_file(filepath)
+            if (avoid_false_positives == "n"):
+                search_file_shotgun(filepath)
+
+# Function to search for less prioritized patterns within files
+def search_file_shotgun(file_path):
+    try:
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
+            content = file.read()
+            for match in shotgun_content_regex.finditer(content):
+                start = max(match.start() - 90, 0)
+                end = match.end() + 90
+                print("_________________________________________________________________________")
+                print(f" 🦜 maybe LOOT by content : \n  {content[start:end]} \n    => {file_path}")
+    except Exception as e:
+        print(f"Could not read {file_path}: {str(e)}")
+
+# Start the search
+search_directory(start_directory)
