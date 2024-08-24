@@ -4,8 +4,10 @@
 
 finds private keys and hashes at this point. will add more stuff later. trufflehog and others didnt really do a good enough job for me.
 
-`Loot/` folder is for example from a HTB machine "runner"
+`./LOOT/` folder is for example from a HTB machine "runner"
 
 ### Usage
 
 `$ python3 all-seeing-eye-py`
+
+![alt text](image.png)
